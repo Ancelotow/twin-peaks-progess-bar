@@ -1,18 +1,22 @@
 <idea-plugin>
     <id>org.ancelotow.twin-peaks-progress-bar</id>
-    <name>Twin-peaks-progress-bar</name>
-    <vendor>Ancelotow</vendor>
+    <name>Twin Peaks - Progress Bar</name>
+    <vendor email="ancelotow@icloud.com">>Ancelotow</vendor>
 
     <description><![CDATA[
-        Enter short description for your plugin here.<br>
-        <em>most HTML tags may be used</em>
+        Twin Peaks inspired progress bar for JetBrains IDEs.<br>
+        <em>Unofficial plugin made by a fan of David Lynch</em>
     ]]></description>
 
-    <depends>com.intellij.modules.compose</depends>
+    <depends>com.intellij.modules.platform</depends>
+    <idea-version since-build="231.0"/>
 
-    <resource-bundle>messages.MyMessageBundle</resource-bundle>
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="MyToolWindow" factoryClass="org.ancelotow.twinpeaksprogressbar.MyToolWindowFactory"
-                    icon="AllIcons.Toolwindows.ToolWindowPalette"/>
+        <postStartupActivity implementation="org.ancelotow.twinpeaksprogressbar.TwinPeaksAppComponent"/>
     </extensions>
+
+    <applicationListeners>
+        <listener class="org.ancelotow.twinpeaksprogressbar.TwinPeaksAppComponent"
+                  topic="com.intellij.ide.ui.LafManagerListener"/>
+    </applicationListeners>
 </idea-plugin>
