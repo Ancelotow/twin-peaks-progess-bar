@@ -1,0 +1,18 @@
+<idea-plugin>
+    <id>org.ancelotow.twin-peaks-progress-bar</id>
+    <name>Twin-peaks-progress-bar</name>
+    <vendor>Ancelotow</vendor>
+
+    <description><![CDATA[
+        Enter short description for your plugin here.<br>
+        <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <depends>com.intellij.modules.compose</depends>
+
+    <resource-bundle>messages.MyMessageBundle</resource-bundle>
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="MyToolWindow" factoryClass="org.ancelotow.twinpeaksprogressbar.MyToolWindowFactory"
+                    icon="AllIcons.Toolwindows.ToolWindowPalette"/>
+    </extensions>
+</idea-plugin>
