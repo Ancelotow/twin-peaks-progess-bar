@@ -1,19 +1,21 @@
 package org.ancelotow.twinpeaksprogressbar
 
-import com.intellij.ui.JBColor
+import com.intellij.openapi.util.IconLoader
 import com.intellij.util.ui.JBUI
 import java.awt.*
-import java.awt.event.ComponentAdapter
-import java.awt.event.ComponentEvent
+import java.awt.geom.Rectangle2D
+import java.awt.image.BufferedImage
 import javax.swing.JComponent
 import javax.swing.plaf.basic.BasicProgressBarUI
+import javax.swing.ImageIcon
 
 
 class TwinPeaksProgressBarUI : BasicProgressBarUI() {
 
-    private val progressColor = Color(0xCC0000) // Rouge Twin Peaks
-    private val backgroundColor = JBColor.BLACK
-    private val zigzagColor = Color(0xFFFFFF) // Blanc pour le zigzag
+    private val violetColor = Color(0x8A2BE2)
+    private val floorIcon = IconLoader.getIcon("/images/black-lodge-floor.png", TwinPeaksProgressBarUI::class.java)
+    private val curtainIcon = IconLoader.getIcon("/images/black-lodge-curtain.png", TwinPeaksProgressBarUI::class.java)
+
 
     override fun installUI(c: JComponent) {
         super.installUI(c)
@@ -33,19 +35,46 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val height = progressBar.height
         val amount = (width * progressBar.percentComplete).toInt()
 
-        // Fond Noir
-        g2.color = backgroundColor
-        g2.fillRect(0, 0, width, height)
+        // 1. Dessiner le sol en fond (Texture répétée)
+        drawRepeatingTexture(g2, floorIcon, width, height)
 
-        // Dessine le zigzag au fond (optionnel, mais très Twin Peaks)
-        drawZigzag(g2, width, height)
+        // 2. Dessiner le rideau qui recouvre (Étiré sur la largeur de progression)
+        if (amount > 0) {
+            drawStretchedImage(g2, curtainIcon, amount, height)
+        }
 
-        // Barre de progression Rouge
-        g2.color = progressColor
-        g2.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.8f)
-        g2.fillRect(0, 0, amount, height)
+        // 3. Bordure violette
+        g2.color = violetColor
+        g2.stroke = BasicStroke(2f)
+        g2.drawRect(0, 0, width - 1, height - 1)
 
         g2.dispose()
+    }
+
+    private fun drawRepeatingTexture(g2: Graphics2D, icon: javax.swing.Icon, width: Int, height: Int) {
+        val w = icon.iconWidth
+        val h = icon.iconHeight
+        if (w <= 0 || h <= 0) return
+
+        val ratio = w.toDouble() / h.toDouble()
+        val scaledWidth = (height * ratio).toInt()
+
+        val bi = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+        val big = bi.createGraphics()
+        icon.paintIcon(null, big, 0, 0)
+        big.dispose()
+
+        val tp = TexturePaint(bi, Rectangle2D.Double(0.0, 0.0, scaledWidth.toDouble(), height.toDouble()))
+        val oldPaint = g2.paint
+        g2.paint = tp
+        g2.fillRect(0, 0, width, height)
+        g2.paint = oldPaint
+    }
+
+    private fun drawStretchedImage(g2: Graphics2D, icon: javax.swing.Icon, width: Int, height: Int) {
+        val image = toImage(icon) ?: return
+        // On dessine l'image pour qu'elle remplisse exactement la zone 'width'
+        g2.drawImage(image, 0, 0, width, height, null)
     }
 
     override fun paintIndeterminate(g: Graphics, c: JComponent) {
@@ -55,50 +84,39 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val width = progressBar.width
         val height = progressBar.height
 
-        // Fond Noir
-        g2.color = backgroundColor
-        g2.fillRect(0, 0, width, height)
+        // 1. Fond zigzag
+        drawRepeatingTexture(g2, floorIcon, width, height)
 
-        // Zigzag
-        drawZigzag(g2, width, height)
+        // 2. Animation du rideau
+        val frame = (System.currentTimeMillis() / 10 % (width + width / 3)).toInt()
+        val curtainWidth = width / 3
+        val startX = frame - curtainWidth
 
-        // Animation "Rideau Rouge" qui bouge
-        val frame = (System.currentTimeMillis() / 10 % width).toInt()
-        g2.color = progressColor
-        g2.composite = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f)
-        
-        val blockWidth = width / 3
-        var startX = frame - blockWidth
-        if (startX < 0) {
-            g2.fillRect(0, 0, blockWidth + startX, height)
-            startX = width + startX
+        val curtainImg = toImage(curtainIcon)
+        if (curtainImg != null) {
+            g2.drawImage(curtainImg, startX, 0, curtainWidth, height, null)
         }
-        g2.fillRect(startX, 0, blockWidth, height)
+
+        // 3. Bordure violette
+        g2.color = violetColor
+        g2.stroke = BasicStroke(2f)
+        g2.drawRect(0, 0, width - 1, height - 1)
 
         g2.dispose()
     }
 
-    private fun drawZigzag(g2: Graphics2D, width: Int, height: Int) {
-        val oldColor = g2.color
-        val oldStroke = g2.stroke
+    private fun toImage(icon: javax.swing.Icon): Image? {
+        if (icon is ImageIcon) return icon.image
         
-        g2.color = Color(0x333333) // Gris foncé pour un zigzag discret en fond
-        val size = height / 2
-        val stroke = BasicStroke(2f)
-        g2.stroke = stroke
-
-        var x = 0
-        while (x < width) {
-            val poly = Polygon()
-            poly.addPoint(x, height)
-            poly.addPoint(x + size, 0)
-            poly.addPoint(x + size * 2, height)
-            g2.drawPolyline(poly.xpoints, poly.ypoints, poly.npoints)
-            x += size * 2
-        }
-
-        g2.color = oldColor
-        g2.stroke = oldStroke
+        val w = icon.iconWidth
+        val h = icon.iconHeight
+        if (w <= 0 || h <= 0) return null
+        
+        val bi = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+        val g = bi.createGraphics()
+        icon.paintIcon(null, g, 0, 0)
+        g.dispose()
+        return bi
     }
 
     companion object {
