@@ -4,6 +4,7 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.geom.Rectangle2D
+import java.awt.geom.RoundRectangle2D
 import java.awt.image.BufferedImage
 import javax.swing.JComponent
 import javax.swing.plaf.basic.BasicProgressBarUI
@@ -34,19 +35,26 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val width = progressBar.width
         val height = progressBar.height
         val amount = (width * progressBar.percentComplete).toInt()
+        val arc = JBUI.scale(8)
 
-        // 1. Dessiner le sol en fond (Texture répétée)
+        // Masque pour les coins arrondis
+        val shape = java.awt.geom.RoundRectangle2D.Float(0f, 0f, width.toFloat(), height.toFloat(), arc.toFloat(), arc.toFloat())
+        val oldClip = g2.clip
+        g2.clip(shape)
+
+        // 1. Fond zigzag
         drawRepeatingTexture(g2, floorIcon, width, height)
 
-        // 2. Dessiner le rideau qui recouvre (Étiré sur la largeur de progression)
+        // 2. Rideau
         if (amount > 0) {
             drawStretchedImage(g2, curtainIcon, amount, height)
         }
 
-        // 3. Bordure violette
+        // 3. Bordure
+        g2.clip = oldClip
         g2.color = violetColor
-        g2.stroke = BasicStroke(2f)
-        g2.drawRect(0, 0, width - 1, height - 1)
+        g2.stroke = BasicStroke(JBUI.scale(2f).toFloat())
+        g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
     }
@@ -73,7 +81,6 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
 
     private fun drawStretchedImage(g2: Graphics2D, icon: javax.swing.Icon, width: Int, height: Int) {
         val image = toImage(icon) ?: return
-        // On dessine l'image pour qu'elle remplisse exactement la zone 'width'
         g2.drawImage(image, 0, 0, width, height, null)
     }
 
@@ -83,11 +90,13 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
 
         val width = progressBar.width
         val height = progressBar.height
+        val arc = JBUI.scale(8)
 
-        // 1. Fond zigzag
+        val shape = RoundRectangle2D.Float(0f, 0f, width.toFloat(), height.toFloat(), arc.toFloat(), arc.toFloat())
+        g2.clip(shape)
+
         drawRepeatingTexture(g2, floorIcon, width, height)
 
-        // 2. Animation du rideau
         val frame = (System.currentTimeMillis() / 10 % (width + width / 3)).toInt()
         val curtainWidth = width / 3
         val startX = frame - curtainWidth
@@ -97,21 +106,21 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
             g2.drawImage(curtainImg, startX, 0, curtainWidth, height, null)
         }
 
-        // 3. Bordure violette
+        g2.clip = null
         g2.color = violetColor
-        g2.stroke = BasicStroke(2f)
-        g2.drawRect(0, 0, width - 1, height - 1)
+        g2.stroke = BasicStroke(JBUI.scale(2f))
+        g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
     }
 
     private fun toImage(icon: javax.swing.Icon): Image? {
         if (icon is ImageIcon) return icon.image
-        
+
         val w = icon.iconWidth
         val h = icon.iconHeight
         if (w <= 0 || h <= 0) return null
-        
+
         val bi = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
         val g = bi.createGraphics()
         icon.paintIcon(null, g, 0, 0)
