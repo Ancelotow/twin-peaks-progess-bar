@@ -11,6 +11,8 @@
     <depends>com.intellij.modules.platform</depends>
     <idea-version since-build="231.0"/>
 
+
+
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="org.ancelotow.twinpeaksprogressbar.TwinPeaksAppComponent"/>
     </extensions>

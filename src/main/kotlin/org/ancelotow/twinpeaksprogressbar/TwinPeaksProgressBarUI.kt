@@ -6,6 +6,7 @@ import java.awt.*
 import java.awt.geom.Rectangle2D
 import java.awt.geom.RoundRectangle2D
 import java.awt.image.BufferedImage
+import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.plaf.basic.BasicProgressBarUI
 import javax.swing.ImageIcon
@@ -16,6 +17,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
     private val violetColor = Color(0x8A2BE2)
     private val floorIcon = IconLoader.getIcon("/images/black-lodge-floor.png", TwinPeaksProgressBarUI::class.java)
     private val curtainIcon = IconLoader.getIcon("/images/black-lodge-curtain.png", TwinPeaksProgressBarUI::class.java)
+    private val manFromAnotherPlaceIcon = IconLoader.getIcon("/images/man-from-another-place.png", TwinPeaksProgressBarUI::class.java)
 
 
     override fun installUI(c: JComponent) {
@@ -53,13 +55,13 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         // 3. Bordure
         g2.clip = oldClip
         g2.color = violetColor
-        g2.stroke = BasicStroke(JBUI.scale(2f).toFloat())
+        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
         g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
     }
 
-    private fun drawRepeatingTexture(g2: Graphics2D, icon: javax.swing.Icon, width: Int, height: Int) {
+    private fun drawRepeatingTexture(g2: Graphics2D, icon: Icon, width: Int, height: Int) {
         val w = icon.iconWidth
         val h = icon.iconHeight
         if (w <= 0 || h <= 0) return
@@ -79,7 +81,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         g2.paint = oldPaint
     }
 
-    private fun drawStretchedImage(g2: Graphics2D, icon: javax.swing.Icon, width: Int, height: Int) {
+    private fun drawStretchedImage(g2: Graphics2D, icon: Icon, width: Int, height: Int) {
         val image = toImage(icon) ?: return
         g2.drawImage(image, 0, 0, width, height, null)
     }
@@ -101,20 +103,33 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val curtainWidth = width / 3
         val startX = frame - curtainWidth
 
-        val curtainImg = toImage(curtainIcon)
-        if (curtainImg != null) {
-            g2.drawImage(curtainImg, startX, 0, curtainWidth, height, null)
+        val manImg = toImage(manFromAnotherPlaceIcon)
+        if (manImg != null) {
+            val srcW = manFromAnotherPlaceIcon.iconWidth
+            val srcH = manFromAnotherPlaceIcon.iconHeight
+
+            if (srcW > 0 && srcH > 0 && height > 0) {
+                val extraH = JBUI.scale(10)
+                val targetH = height + extraH
+                val targetW = (targetH.toDouble() * srcW.toDouble() / srcH.toDouble()).toInt().coerceAtLeast(1)
+
+                val frame = (System.currentTimeMillis() / 10 % (width + targetW)).toInt()
+                val x = frame - targetW
+                val y = -(extraH / 2)                    // centre verticalement malgré la hauteur extra
+
+                g2.drawImage(manImg, x, y, targetW, targetH, null)
+            }
         }
 
         g2.clip = null
         g2.color = violetColor
-        g2.stroke = BasicStroke(JBUI.scale(2f))
+        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
         g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
     }
 
-    private fun toImage(icon: javax.swing.Icon): Image? {
+    private fun toImage(icon: Icon): Image? {
         if (icon is ImageIcon) return icon.image
 
         val w = icon.iconWidth
