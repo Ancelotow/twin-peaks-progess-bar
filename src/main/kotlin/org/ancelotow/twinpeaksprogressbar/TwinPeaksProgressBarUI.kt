@@ -1,12 +1,12 @@
 package org.ancelotow.twinpeaksprogressbar
 
 import com.intellij.openapi.util.IconLoader
-import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.geom.Rectangle2D
 import java.awt.geom.RoundRectangle2D
 import java.awt.image.BufferedImage
+import javax.swing.Icon
 import javax.swing.JComponent
 import javax.swing.plaf.basic.BasicProgressBarUI
 import javax.swing.ImageIcon
@@ -17,6 +17,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
     private val violetColor = Color(0x8A2BE2)
     private val floorIcon = IconLoader.getIcon("/images/black-lodge-floor.png", TwinPeaksProgressBarUI::class.java)
     private val curtainIcon = IconLoader.getIcon("/images/black-lodge-curtain.png", TwinPeaksProgressBarUI::class.java)
+    private val manFromAnotherPlaceIcon = IconLoader.getIcon("/images/man-from-another-place.png", TwinPeaksProgressBarUI::class.java)
 
 
     override fun installUI(c: JComponent) {
@@ -60,7 +61,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         g2.dispose()
     }
 
-    private fun drawRepeatingTexture(g2: Graphics2D, icon: javax.swing.Icon, width: Int, height: Int) {
+    private fun drawRepeatingTexture(g2: Graphics2D, icon: Icon, width: Int, height: Int) {
         val w = icon.iconWidth
         val h = icon.iconHeight
         if (w <= 0 || h <= 0) return
@@ -80,7 +81,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         g2.paint = oldPaint
     }
 
-    private fun drawStretchedImage(g2: Graphics2D, icon: javax.swing.Icon, width: Int, height: Int) {
+    private fun drawStretchedImage(g2: Graphics2D, icon: Icon, width: Int, height: Int) {
         val image = toImage(icon) ?: return
         g2.drawImage(image, 0, 0, width, height, null)
     }
@@ -102,9 +103,9 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val curtainWidth = width / 3
         val startX = frame - curtainWidth
 
-        val curtainImg = toImage(curtainIcon)
-        if (curtainImg != null) {
-            g2.drawImage(curtainImg, startX, 0, curtainWidth, height, null)
+        val manFromAnotherPlaceImg = toImage(manFromAnotherPlaceIcon)
+        if (manFromAnotherPlaceImg != null) {
+            g2.drawImage(manFromAnotherPlaceImg, startX, 0, curtainWidth, height  + JBUI.scale(10), null)
         }
 
         g2.clip = null
@@ -115,7 +116,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         g2.dispose()
     }
 
-    private fun toImage(icon: javax.swing.Icon): Image? {
+    private fun toImage(icon: Icon): Image? {
         if (icon is ImageIcon) return icon.image
 
         val w = icon.iconWidth
