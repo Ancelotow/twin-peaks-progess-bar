@@ -1,6 +1,7 @@
 package org.ancelotow.twinpeaksprogressbar
 
 import com.intellij.openapi.util.IconLoader
+import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.geom.Rectangle2D
@@ -53,7 +54,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         // 3. Bordure
         g2.clip = oldClip
         g2.color = violetColor
-        g2.stroke = BasicStroke(JBUI.scale(2f).toFloat())
+        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
         g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
@@ -108,7 +109,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
 
         g2.clip = null
         g2.color = violetColor
-        g2.stroke = BasicStroke(JBUI.scale(2f))
+        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
         g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
