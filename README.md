@@ -1,5 +1,12 @@
 # Twin Peaks Progress Bar (Unofficial)
 
+![JetBrains Plugin Version](https://img.shields.io/jetbrains/plugin/v/29820)
+
+![JetBrains Plugin Downloads](https://img.shields.io/jetbrains/plugin/d/29820)
+![JetBrains Plugin Rating](https://img.shields.io/jetbrains/plugin/r/rating/29820)
+
+
+
 A progress bar for JetBrains IDEs inspired by the TV series and film *Twin Peaks* by David Lynch 🖤
 
 This plugin is a fan-made, unofficial project created by a Twin Peaks enthusiast.
