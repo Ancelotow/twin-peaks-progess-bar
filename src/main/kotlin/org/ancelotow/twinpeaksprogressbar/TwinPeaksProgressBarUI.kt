@@ -1,6 +1,7 @@
 package org.ancelotow.twinpeaksprogressbar
 
 import com.intellij.openapi.util.IconLoader
+import com.intellij.ui.JBColor
 import com.intellij.util.ui.JBUI
 import java.awt.*
 import java.awt.geom.Rectangle2D
@@ -13,7 +14,7 @@ import javax.swing.ImageIcon
 
 class TwinPeaksProgressBarUI : BasicProgressBarUI() {
 
-    private val violetColor = Color(0x8A2BE2)
+    private val violetColor = JBColor.namedColor("progressBar.borderColor")
     private val floorIcon = IconLoader.getIcon("/images/black-lodge-floor.png", TwinPeaksProgressBarUI::class.java)
     private val curtainIcon = IconLoader.getIcon("/images/black-lodge-curtain.png", TwinPeaksProgressBarUI::class.java)
 
@@ -53,7 +54,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         // 3. Bordure
         g2.clip = oldClip
         g2.color = violetColor
-        g2.stroke = BasicStroke(JBUI.scale(2f).toFloat())
+        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
         g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
@@ -67,7 +68,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val ratio = w.toDouble() / h.toDouble()
         val scaledWidth = (height * ratio).toInt()
 
-        val bi = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
+        val bi = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
         val big = bi.createGraphics()
         icon.paintIcon(null, big, 0, 0)
         big.dispose()
@@ -108,7 +109,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
 
         g2.clip = null
         g2.color = violetColor
-        g2.stroke = BasicStroke(JBUI.scale(2f))
+        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
         g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
 
         g2.dispose()
@@ -126,12 +127,5 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         icon.paintIcon(null, g, 0, 0)
         g.dispose()
         return bi
-    }
-
-    companion object {
-        @JvmStatic
-        fun createUI(c: JComponent?): TwinPeaksProgressBarUI {
-            return TwinPeaksProgressBarUI()
-        }
     }
 }
