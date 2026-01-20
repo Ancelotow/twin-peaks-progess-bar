@@ -14,9 +14,11 @@ It is not affiliated with, endorsed by, or connected to the creators or rights h
 
 ## 🎨 Design
 - **Background :**
+
 ![progress-bar.png](assets/progress-bar.png)
 
 - **Loading :**
+
 ![progress-bar-loading.png](assets/progress-bar-loading.png)
 
 ## ⚖️ License
