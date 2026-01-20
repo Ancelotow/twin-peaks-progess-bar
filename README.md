@@ -15,11 +15,16 @@ It is not affiliated with, endorsed by, or connected to the creators or rights h
 ## 🎨 Design
 - **Background :**
 
-![progress-bar.png](assets/progress-bar.png)
+<img src="assets/progress-bar.png" width="151" alt="progress-bar.png" />
 
-- **Loading :**
 
-![progress-bar-loading.png](assets/progress-bar-loading.png)
+- **Loading determinate :**
+
+<img src="assets/progress-bar-loading.png" width="151" alt="progress-bar-loading.png" />
+
+- **Loading indeterminate:**
+
+<img src="assets/progress-bar-indeterminate.png" width="151" alt="progress-bar-indeterminate.png" />
 
 ## ⚖️ License
 This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
