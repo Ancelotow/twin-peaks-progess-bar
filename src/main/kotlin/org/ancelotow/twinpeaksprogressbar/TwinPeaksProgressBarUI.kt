@@ -103,9 +103,22 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val curtainWidth = width / 3
         val startX = frame - curtainWidth
 
-        val manFromAnotherPlaceImg = toImage(manFromAnotherPlaceIcon)
-        if (manFromAnotherPlaceImg != null) {
-            g2.drawImage(manFromAnotherPlaceImg, startX, 0, curtainWidth, height  + JBUI.scale(10), null)
+        val manImg = toImage(manFromAnotherPlaceIcon)
+        if (manImg != null) {
+            val srcW = manFromAnotherPlaceIcon.iconWidth
+            val srcH = manFromAnotherPlaceIcon.iconHeight
+
+            if (srcW > 0 && srcH > 0 && height > 0) {
+                val extraH = JBUI.scale(10)
+                val targetH = height + extraH
+                val targetW = (targetH.toDouble() * srcW.toDouble() / srcH.toDouble()).toInt().coerceAtLeast(1)
+
+                val frame = (System.currentTimeMillis() / 10 % (width + targetW)).toInt()
+                val x = frame - targetW
+                val y = -(extraH / 2)                    // centre verticalement malgré la hauteur extra
+
+                g2.drawImage(manImg, x, y, targetW, targetH, null)
+            }
         }
 
         g2.clip = null
