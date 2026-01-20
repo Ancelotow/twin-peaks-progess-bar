@@ -1,7 +1,0 @@
-{
-  "name": "Twin Peaks Progress Bar Theme",
-  "dark": true,
-  "colors" : {
-    "progressBar.borderColor" : "#8A2BE2"
-  }
-}

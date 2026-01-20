@@ -15,9 +15,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <postStartupActivity implementation="org.ancelotow.twinpeaksprogressbar.TwinPeaksAppComponent"/>
-        <themeProvider
-                path="/themes/default.json"
-                id="twinpeaks.default.theme"/>
     </extensions>
 
     <applicationListeners>

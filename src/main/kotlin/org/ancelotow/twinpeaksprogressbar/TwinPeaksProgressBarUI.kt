@@ -14,7 +14,7 @@ import javax.swing.ImageIcon
 
 class TwinPeaksProgressBarUI : BasicProgressBarUI() {
 
-    private val violetColor = JBColor.namedColor("progressBar.borderColor")
+    private val violetColor = Color(0x8A2BE2)
     private val floorIcon = IconLoader.getIcon("/images/black-lodge-floor.png", TwinPeaksProgressBarUI::class.java)
     private val curtainIcon = IconLoader.getIcon("/images/black-lodge-curtain.png", TwinPeaksProgressBarUI::class.java)
 
@@ -68,7 +68,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         val ratio = w.toDouble() / h.toDouble()
         val scaledWidth = (height * ratio).toInt()
 
-        val bi = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+        val bi = BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB)
         val big = bi.createGraphics()
         icon.paintIcon(null, big, 0, 0)
         big.dispose()
@@ -127,5 +127,12 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI() {
         icon.paintIcon(null, g, 0, 0)
         g.dispose()
         return bi
+    }
+
+    companion object {
+        @JvmStatic
+        fun createUI(c: JComponent?): TwinPeaksProgressBarUI {
+            return TwinPeaksProgressBarUI()
+        }
     }
 }
