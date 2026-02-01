@@ -1,7 +1,8 @@
 package org.ancelotow.twinpeaksprogressbar
 
-import com.intellij.openapi.util.IconLoader
 import com.intellij.util.ui.JBUI
+import org.ancelotow.twinpeaksprogressbar.theme.TwinPeaksTheme
+import org.ancelotow.twinpeaksprogressbar.theme.defaultTheme
 import java.awt.*
 import java.awt.geom.Rectangle2D
 import java.awt.geom.RoundRectangle2D
@@ -14,11 +15,9 @@ import javax.swing.ImageIcon
 import javax.swing.Timer
 
 
-class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
-    private val violetColor = Color(0x8A2BE2)
-    private val floorIcon = IconLoader.getIcon("/images/black-lodge-floor.png", TwinPeaksProgressBarUI::class.java)
-    private val curtainIcon = IconLoader.getIcon("/images/black-lodge-curtain.png", TwinPeaksProgressBarUI::class.java)
-    private val manFromAnotherPlaceIcon = IconLoader.getIcon("/images/man-from-another-place.png", TwinPeaksProgressBarUI::class.java)
+class TwinPeaksProgressBarUI(
+    private val theme: TwinPeaksTheme
+) : BasicProgressBarUI(), PropertyChangeListener {
 
     override fun installUI(c: JComponent) {
         super.installUI(c)
@@ -30,6 +29,12 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
         }
         progressBar.addPropertyChangeListener(this)
 
+    }
+
+    override fun uninstallUI(c: JComponent) {
+        animationTimer.stop()
+        progressBar.removePropertyChangeListener(this)
+        super.uninstallUI(c)
     }
 
     override fun propertyChange(evt: java.beans.PropertyChangeEvent) {
@@ -45,44 +50,12 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
         }
     }
 
-    override fun uninstallUI(c: JComponent) {
-        animationTimer.stop()
-        progressBar.removePropertyChangeListener(this)
-        super.uninstallUI(c)
-    }
-
     override fun getPreferredSize(c: JComponent?): Dimension {
         return Dimension(super.getPreferredSize(c).width, JBUI.scale(20))
     }
 
-    override fun paintDeterminate(g: Graphics, c: JComponent) {
-        val g2 = g.create() as Graphics2D
-        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
-
-        val width = progressBar.width
-        val height = progressBar.height
-        val amount = (width * progressBar.percentComplete).toInt()
-        val arc = JBUI.scale(8)
-
-        val shape = java.awt.geom.RoundRectangle2D.Float(0f, 0f, width.toFloat(), height.toFloat(), arc.toFloat(), arc.toFloat())
-        val oldClip = g2.clip
-        g2.clip(shape)
-
-        drawRepeatingTexture(g2, floorIcon, width, height)
-
-        if (amount > 0) {
-            drawStretchedImage(g2, curtainIcon, amount, height)
-        }
-
-        g2.clip = oldClip
-        g2.color = violetColor
-        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
-        g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
-
-        g2.dispose()
-    }
-
-    private fun drawRepeatingTexture(g2: Graphics2D, icon: Icon, width: Int, height: Int) {
+    private fun drawBackground(g2: Graphics2D, width: Int, height: Int) {
+        val icon = theme.backgroundIcon
         val w = icon.iconWidth
         val h = icon.iconHeight
         if (w <= 0 || h <= 0) return
@@ -107,6 +80,38 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
         g2.drawImage(image, 0, 0, width, height, null)
     }
 
+    private fun paintProgressBar(g: Graphics, painter: (g2: Graphics2D, width: Int, height: Int) -> Unit){
+        val width = progressBar.width
+        val height = progressBar.height
+        val g2 = g as Graphics2D
+        val arc = JBUI.scale(8)
+        val shape = RoundRectangle2D.Float(0f, 0f, width.toFloat(), height.toFloat(), arc.toFloat(), arc.toFloat())
+        val oldClip = g2.clip
+
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
+        g2.clip(shape)
+        drawBackground(g2, width, height)
+
+        painter(g2, width, height)
+
+        g2.clip = oldClip
+        g2.color = theme.primaryColor
+        g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
+        g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
+
+        g2.dispose()
+    }
+
+    override fun paintDeterminate(g: Graphics, c: JComponent) {
+        paintProgressBar(g) { g2, width, height ->
+            val amount = (width * progressBar.percentComplete).toInt()
+            drawBackground(g2, width, height)
+            if (amount > 0) {
+                drawStretchedImage(g2, theme.determinateIcon, amount, height)
+            }
+        }
+    }
+
     override fun paintIndeterminate(g: Graphics, c: JComponent) {
         val g2 = g as Graphics2D
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON)
@@ -125,12 +130,11 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
         g2.clip = shape
 
         // Fond
-        drawRepeatingTexture(g2, floorIcon, width, height)
+        drawBackground(g2, width, height)
 
-        // Image mobile (DESSIN SEULEMENT)
         if (manImg != null) {
-            val srcW = manFromAnotherPlaceIcon.iconWidth
-            val srcH = manFromAnotherPlaceIcon.iconHeight
+            val srcW = theme.indeterminateIcon.iconWidth
+            val srcH = theme.indeterminateIcon.iconHeight
 
             if (srcW > 0 && srcH > 0) {
                 val extraH = JBUI.scale(10)
@@ -157,7 +161,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
 
         // Bordure
         g2.clip = null
-        g2.color = violetColor
+        g2.color = theme.primaryColor
         g2.stroke = BasicStroke(JBUI.scale(2).toFloat())
         g2.drawRoundRect(0, 0, width - 1, height - 1, arc, arc)
     }
@@ -184,9 +188,9 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
     private var currentFrameForFacing = 0
 
 
-    private val manImg = toImage(manFromAnotherPlaceIcon)
+    private val manImg = toImage(theme.indeterminateIcon)
 
-    private val animationTimer = Timer(32) { // ~60 FPS
+    private val animationTimer = Timer(32) { // ~30 FPS
         val step = JBUI.scale(2)
         val width = progressBar.width
 
@@ -218,7 +222,7 @@ class TwinPeaksProgressBarUI : BasicProgressBarUI(), PropertyChangeListener {
     companion object {
         @JvmStatic
         fun createUI(c: JComponent?): TwinPeaksProgressBarUI {
-            return TwinPeaksProgressBarUI()
+            return TwinPeaksProgressBarUI(defaultTheme)
         }
     }
 }
