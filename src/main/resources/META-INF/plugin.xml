@@ -21,4 +21,13 @@
         <listener class="org.ancelotow.twinpeaksprogressbar.TwinPeaksAppComponent"
                   topic="com.intellij.ide.ui.LafManagerListener"/>
     </applicationListeners>
+
+    <actions>
+        <action id="org.ancelotow.twinpeaksprogressbar.TestProgressBarAction"
+                class="org.ancelotow.twinpeaksprogressbar.TestProgressBarAction"
+                text="Test Twin Peaks Progress"
+                description="Test progress bar UI">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+        </action>
+    </actions>
 </idea-plugin>
