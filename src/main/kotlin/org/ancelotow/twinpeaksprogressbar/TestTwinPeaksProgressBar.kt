@@ -11,7 +11,7 @@ import javax.swing.JPanel
 import javax.swing.JProgressBar
 import javax.swing.SwingUtilities
 
-class TestProgressBarAction : AnAction("Test Twin Peaks Progress") {
+class TestProgressBarAction : AnAction() {
     override fun actionPerformed(e: AnActionEvent) {
         val frame = JFrame("Twin Peaks Progress Bar Test").apply {
             defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
@@ -36,11 +36,9 @@ class TestProgressBarAction : AnAction("Test Twin Peaks Progress") {
         panel.add(Box.createVerticalStrut(20))
         panel.add(barIndeterminate)
 
-
         frame.contentPane = panel
         frame.isVisible = true
 
-        // Progress lente et visible
         ApplicationManager.getApplication().executeOnPooledThread {
             for (i in 0..100) {
                 SwingUtilities.invokeLater {
